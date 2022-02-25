@@ -97,6 +97,7 @@ class BackendCapabilitySets(NamedTuple):
 class CompilerPoolMode(enum.StrEnum):
     Fixed = "fixed"
     OnDemand = "on_demand"
+    Remote = "remote"
 
     def __init__(self, name):
         self.pool_class = None
@@ -109,8 +110,10 @@ class CompilerPoolMode(enum.StrEnum):
     def compute_default_pool_size(self):
         if self.value == self.Fixed:
             return compute_default_compiler_pool_size()
-        else:
+        elif self.value == self.OnDemand:
             return 1
+        else:
+            return 0
 
 
 class OptionWithDynamicHelp(click.Option):

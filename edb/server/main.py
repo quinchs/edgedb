@@ -609,11 +609,13 @@ def server_main(**kwargs):
             asyncio.run(run_server(server_args))
 
 
-@click.command(
+@click.group(
     'EdgeDB Server',
+    invoke_without_command=True,
     context_settings=dict(help_option_names=['-h', '--help']))
 @srvargs.server_options
-def main(version=False, **kwargs):
+@click.pass_context
+def main(ctx, version=False, **kwargs):
     if kwargs.get('testmode') and 'EDGEDB_TEST_CATALOG_VERSION' in os.environ:
         buildmeta.EDGEDB_CATALOG_VERSION = int(
             os.environ['EDGEDB_TEST_CATALOG_VERSION']
@@ -621,7 +623,11 @@ def main(version=False, **kwargs):
     if version:
         print(f"edgedb-server, version {buildmeta.get_version()}")
         sys.exit(0)
-    server_main(**kwargs)
+    if ctx.invoked_subcommand is None:
+        server_main(**kwargs)
+
+
+from edb.server.compiler_pool import server as compiler_server  # noqa
 
 
 def main_dev():
